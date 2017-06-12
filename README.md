@@ -1,5 +1,5 @@
 # Refit.Insane.PowerPack
-Refit Insane Extensions -
+Refit Insane PowerPack is a Refit library extensions which provides attribute based cache and auto-retry features.
 
 # Installation Guide
 I have published NuGet Prerelease version - if you want to test around that please type:
