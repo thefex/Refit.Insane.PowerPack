@@ -51,8 +51,10 @@
     <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RefitRestServiceRetryProxy.cs" />
+    <Compile Include="RefitRestServiceRetryProxyTests.cs" />
     <Compile Include="IRestMockedApi.cs" />
+    <Compile Include="RefitRestServiceCacheDecoratorTests.cs" />
+    <Compile Include="ICacheRestMockApi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

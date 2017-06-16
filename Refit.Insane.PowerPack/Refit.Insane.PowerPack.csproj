@@ -42,6 +42,8 @@
     <Compile Include="Caching\RefitCacheAttribute.cs" />
     <Compile Include="Services\RefitRestServiceCachingDecorator.cs" />
     <Compile Include="AkavacheSqliteLinkerOverride.cs" />
+    <Compile Include="Caching\IPersistedCache.cs" />
+    <Compile Include="Caching\Internal\AkavachePersistedCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">

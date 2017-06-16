@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Akavache;
+using Refit.Insane.PowerPack.Caching;
 using Refit.Insane.PowerPack.Caching.Internal;
 using Refit.Insane.PowerPack.Data;
 
@@ -13,8 +13,17 @@ namespace Refit.Insane.PowerPack.Services
         private readonly IRestService _decoratedRestService;
         private readonly RefitCacheController _refitCacheController;
 
-        public RefitRestServiceCachingDecorator(IRestService decoratedRestService, RefitCacheController refitCacheController)
+        public RefitRestServiceCachingDecorator(IRestService decoratedRestService, RefitCacheController cacheController)
+            : this(decoratedRestService, new AkavachePersistedCache(), cacheController)
         {
+
+        }
+
+        readonly IPersistedCache persistedCache;
+
+        public RefitRestServiceCachingDecorator(IRestService decoratedRestService, IPersistedCache persistedCache, RefitCacheController refitCacheController)
+        {
+            this.persistedCache = persistedCache;
             _decoratedRestService = decoratedRestService;
             _refitCacheController = refitCacheController;
         }
@@ -25,7 +34,7 @@ namespace Refit.Insane.PowerPack.Services
                 return await _decoratedRestService.Execute(executeApiMethod).ConfigureAwait(false);
 
             var cacheKey = _refitCacheController.GetCacheKey(executeApiMethod);
-            var cachedValue = await Akavache.BlobCache.LocalMachine.GetObject<TResult>(cacheKey).Catch(Observable.Return(default(TResult)));
+            var cachedValue = await persistedCache.Get<TResult>(cacheKey);
 
             if (cachedValue != null)
                 return new Response<TResult>(cachedValue);
@@ -36,10 +45,7 @@ namespace Refit.Insane.PowerPack.Services
             {
                 var refitCacheAttributes = _refitCacheController.GetRefitCacheAttribute<TApi, TResult>(executeApiMethod);
 
-                if (refitCacheAttributes.CacheAttribute.CacheTtl.HasValue)
-                    await BlobCache.LocalMachine.InsertObject(cacheKey, restResponse.Results, refitCacheAttributes.CacheAttribute.CacheTtl.Value);
-                else
-                    await BlobCache.LocalMachine.InsertObject(cacheKey, restResponse.Results);
+                await persistedCache.Save(cacheKey, restResponse.Results, refitCacheAttributes.CacheAttribute.CacheTtl);
             }
 
             return restResponse;
