@@ -37,7 +37,8 @@ namespace SampleApp.Core.ViewModels
                 IsAsynchronousOperationInProgress = true;
                 var clientId = Client.Id;
                 var clientDetailsResponse =
-                    await restService.Execute<IClientApi, ClientDetails>(api => api.GetClientDetails(clientId, default(CancellationToken)));
+                    await restService.Execute<IClientApi, ClientDetails>
+                        (api => api.GetClientDetails(clientId, default(CancellationToken)));
 
                 if (clientDetailsResponse.IsSuccess)
                     Properties = clientDetailsResponse.Results.Properties;
@@ -67,6 +68,7 @@ namespace SampleApp.Core.ViewModels
                     return;
 
                 IsAsynchronousOperationInProgress = true;
+
                 var clientDetails = new ClientDetails() { Properties = Properties };
                 var clientId = Client.Id;
 

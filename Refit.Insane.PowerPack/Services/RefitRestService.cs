@@ -55,30 +55,18 @@ namespace Refit.Insane.PowerPack.Services
 			}
 		}
 
-		private Response<TResult> GetResponse<TResult>(ApiException fromApiException)
-		{
-			try
-			{
-                var response = fromApiException.GetContentAs<Response<TResult>>() ?? new Response<TResult>();
-				return response.SetAsFailureResponse();
-			}
-			catch (Exception e)
-			{
-				throw fromApiException;
-			}
-		}
+        protected virtual bool CanPrepareResponse(ApiException fromApiException) => false;
 
-		private Response GetResponse(ApiException fromApiException)
-		{
-			try
-			{
-                var response = fromApiException.GetContentAs<Response>() ?? new Response();
-				return response.SetAsFailureResponse();
-			}
-			catch (Exception e)
-			{
-				throw fromApiException;
-			}
-		}
+        protected virtual Response GetResponse(ApiException fromApiException) {
+            throw new InvalidOperationException($"If you are returning true in CanPrepareResponse method " +
+                                                "you have to override GetResponse methods.");
+        }
+
+        protected virtual Response<TResult> GetResponse<TResult>(ApiException fromApiException){
+			throw new InvalidOperationException($"If you are returning true in CanPrepareResponse method " +
+												"you have to override GetResponse methods.");
+        }
+
+		 
     }
 }

@@ -6,8 +6,8 @@ namespace Refit.Insane.PowerPack.Services
 {
     public class RestServiceBuilder
     {
-        bool isAutoRetryEnabled = false;
-        bool isCacheEnabled = false;
+        bool isAutoRetryEnabled = true;
+        bool isCacheEnabled = true;
 
         public RestServiceBuilder WithAutoRetry(bool shouldEnableAutoRetry = true)
         {
@@ -23,15 +23,21 @@ namespace Refit.Insane.PowerPack.Services
 
         public IRestService BuildRestService(Func<HttpClient> httpClientFactory, Assembly restApiAssembly) 
         {
-            IRestService refitRestService = new RefitRestService(httpClientFactory);
+            var refitRestService = new RefitRestService(httpClientFactory);
 
-            if (isAutoRetryEnabled)
-                refitRestService = new RefitRestServiceRetryProxy(refitRestService, restApiAssembly);
+            return BuildRestService(refitRestService, restApiAssembly);
+        }
 
-            if (isCacheEnabled)
-                refitRestService = new RefitRestServiceCachingDecorator(refitRestService, new Caching.Internal.RefitCacheController());
+        public IRestService BuildRestService(RefitRestService restService, Assembly restApiAssembly){
+            IRestService refitRestService = restService;
 
-            return refitRestService;
+			if (isAutoRetryEnabled)
+				refitRestService = new RefitRestServiceRetryProxy(refitRestService, restApiAssembly);
+
+			if (isCacheEnabled)
+				refitRestService = new RefitRestServiceCachingDecorator(refitRestService, new Caching.Internal.RefitCacheController());
+
+			return refitRestService;
         }
     }
 }
