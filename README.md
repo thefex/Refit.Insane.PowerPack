@@ -7,7 +7,7 @@ Install-Package Refit.Insane.PowerPack -Pre
 in your nuget package console.
 
 # Documentation
-Sample, unit tests, docs gonna be published as soon as stable version gets published.
+Documentation and first stable version will be available on 22 June.
 
 # Acknowledgment
 This library has been created thanks to help and support from InsaneLab.com (http://www.insanelab.com). Thanks for giving me time to work on this project - you guys rock :-)
