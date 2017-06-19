@@ -41,6 +41,9 @@ namespace Refit.Insane.PowerPack.Services
                 .Handle<Exception>(exception =>
                {
                    var apiException = exception as ApiException;
+
+                   if (exception is TaskCanceledException)
+                       return true;
                    if (apiException == null)
                        return false;
 

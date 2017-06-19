@@ -11,6 +11,11 @@ namespace Refit.Insane.PowerPack.Caching.Internal
         {
         }
 
+        public async Task Delete(string cachedValueAtKey)
+        {
+            await BlobCache.LocalMachine.Invalidate(cachedValueAtKey);
+        }
+
         public async Task<TResult> Get<TResult>(string atKey)
         {
             return await BlobCache.LocalMachine.GetObject<TResult>(atKey).Catch(Observable.Return(default(TResult)));
@@ -23,5 +28,6 @@ namespace Refit.Insane.PowerPack.Caching.Internal
             else
                 await BlobCache.LocalMachine.InsertObject(atKey, valueToCache);
         }
+
     }
 }
