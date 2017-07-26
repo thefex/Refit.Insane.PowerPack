@@ -78,7 +78,7 @@ namespace Refit.Insane.PowerPack.Services
 		    var httpClient = new HttpClient(httpClientMessageHandler)
 		    {
 			    BaseAddress = ApiDefinitionAttributeExtension.GetUri<TApi>(), 
-			    Timeout = TimeSpan.FromMilliseconds(ApiDefinitionAttributeExtension.GetTimeout<TApi>())
+			    Timeout = ApiDefinitionAttributeExtension.GetTimeout<TApi>()
 		    };
 			
 		    var restApi = default(TApi);

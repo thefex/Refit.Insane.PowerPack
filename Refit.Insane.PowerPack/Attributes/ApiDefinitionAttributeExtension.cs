@@ -13,10 +13,10 @@ namespace Refit.Insane.PowerPack.Attributes
             return attribute != null ? new Uri(attribute.BaseUri) : BaseApiConfiguration.ApiUri;
         }
         
-        public static int GetTimeout<TApi>()
+        public static TimeSpan GetTimeout<TApi>()
         {
             var attribute = GetAttribute<TApi>();
-            return attribute?.ApiTimeout ?? 5000;
+            return attribute?.ApiTimeout ?? TimeSpan.FromSeconds(5);
         }
 		
         public static Type GetHttpClientHandlerType<TApi>()

@@ -18,10 +18,10 @@ namespace Refit.Insane.PowerPack.Attributes
 
         private ApiDefinitionAttribute()
         {
-            ApiTimeout = 5;
+            ApiTimeout = TimeSpan.FromSeconds(5);
         }
 
-        public int ApiTimeout { get; }
+        public TimeSpan ApiTimeout { get; }
 
         public string BaseUri { get; }
         
