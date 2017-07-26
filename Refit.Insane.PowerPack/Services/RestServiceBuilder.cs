@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
 
@@ -20,10 +21,24 @@ namespace Refit.Insane.PowerPack.Services
             isCacheEnabled = shouldEnableCache;
             return this;
         }
-
-        public IRestService BuildRestService(Func<HttpClient> httpClientFactory, Assembly restApiAssembly) 
+        
+        public IRestService BuildRestService(Assembly restApiAssembly) 
         {
-            var refitRestService = new RefitRestService(httpClientFactory);
+            var refitRestService = new RefitRestService();
+
+            return BuildRestService(refitRestService, restApiAssembly);
+        }
+
+        public IRestService BuildRestService(IDictionary<Type, DelegatingHandler> handlerImplementations, Assembly restApiAssembly) 
+        {
+            var refitRestService = new RefitRestService(handlerImplementations);
+
+            return BuildRestService(refitRestService, restApiAssembly);
+        }
+        
+        public IRestService BuildRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories, Assembly restApiAssembly) 
+        {
+            var refitRestService = new RefitRestService(handlerFactories);
 
             return BuildRestService(refitRestService, restApiAssembly);
         }
