@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Net.Http;
 using System.Reflection;
 using MvvmCross.Platform;
 using MvvmCross.Platform.IoC;
+using Refit.Insane.PowerPack.Configuration;
 using Refit.Insane.PowerPack.Services;
 using SampleApp.Core.ViewModels;
 
@@ -10,8 +10,6 @@ namespace SampleApp.Core
 {
     public class App : MvvmCross.Core.ViewModels.MvxApplication
     {
-        public static Uri ApiPath => new Uri("http://apitestprezentacja.azurewebsites.net/");
-
         public override void Initialize()
         {
             CreatableTypes()
@@ -22,17 +20,15 @@ namespace SampleApp.Core
             Mvx.RegisterType<MainViewModel>(() => new MainViewModel(Mvx.Resolve<IRestService>()));
             Mvx.RegisterType<ClientDetailsViewModel>(() => new ClientDetailsViewModel(Mvx.Resolve<IRestService>()));
 
+            BaseApiConfiguration.ApiUri = new Uri("http://apitestprezentacja.azurewebsites.net/");
+            
             Mvx.RegisterType<IRestService>(() =>
             {
                 var restServiceBuilder = new RestServiceBuilder()
                     .WithCaching()
                     .WithAutoRetry();
 
-                return restServiceBuilder.BuildRestService(() => new System.Net.Http.HttpClient(
-                    new HttpClientDiagnostics.HttpClientDiagnosticsHandler(new HttpClientHandler())){
-                    Timeout = TimeSpan.FromSeconds(5),
-                    BaseAddress = ApiPath
-                }, typeof(App).GetTypeInfo().Assembly);
+                return restServiceBuilder.BuildRestService(typeof(App).GetTypeInfo().Assembly);
             });
 
             RegisterAppStart<MainViewModel>();
