@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using MvvmCross.Platform;
 using MvvmCross.Platform.IoC;
+using Refit.Insane.PowerPack.Configuration;
 using Refit.Insane.PowerPack.Services;
 using SampleApp.Core.ViewModels;
 
@@ -18,6 +20,8 @@ namespace SampleApp.Core
             Mvx.RegisterType<MainViewModel>(() => new MainViewModel(Mvx.Resolve<IRestService>()));
             Mvx.RegisterType<ClientDetailsViewModel>(() => new ClientDetailsViewModel(Mvx.Resolve<IRestService>()));
 
+            BaseApiConfiguration.ApiUri = new Uri("http://apitestprezentacja.azurewebsites.net/");
+            
             Mvx.RegisterType<IRestService>(() =>
             {
                 var restServiceBuilder = new RestServiceBuilder()
