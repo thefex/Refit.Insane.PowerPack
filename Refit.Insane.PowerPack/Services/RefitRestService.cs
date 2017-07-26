@@ -1,26 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Refit.Insane.PowerPack.Data;
 using System.Net;
+using Refit.Insane.PowerPack.Attributes;
 
 namespace Refit.Insane.PowerPack.Services
 {
-    public class RefitRestService : IRestService
+	public class RefitRestService : IRestService
     {
-        readonly Func<HttpClient> _httpClientFactory;
+	    private readonly IDictionary<Type, Func<DelegatingHandler>> _handlerFactories;
+	    private readonly IDictionary<Type, DelegatingHandler> _handlerImplementations;
+	    private readonly IDictionary<Type, object> _implementations = new Dictionary<Type, object>();
 
-        public RefitRestService(Func<HttpClient> httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory;
-        }
+	    public RefitRestService()
+	    {
+		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
+		    _handlerFactories = new Dictionary<Type, Func<DelegatingHandler>>();
+	    }
 
+	    public RefitRestService(IDictionary<Type, DelegatingHandler> handlerImplementations)
+	    {
+		    _handlerImplementations = handlerImplementations;
+		    _handlerFactories = new Dictionary<Type, Func<DelegatingHandler>>();
+	    }
+		
+	    public RefitRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories)
+	    {
+		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
+		    _handlerFactories = handlerFactories;
+	    }
 
 		public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod)
 		{
-			var httpClient = _httpClientFactory();
-			var restApi = RestService.For<TApi>(httpClient);
+			var restApi = GetRestApiImplementation<TApi>();
 
 			try
 			{
@@ -38,8 +53,7 @@ namespace Refit.Insane.PowerPack.Services
 
 		public async Task<Response> Execute<TApi>(Expression<Func<TApi, Task>> executeApiMethod)
 		{
-			var httpClient = _httpClientFactory();
-			var restApi = RestService.For<TApi>(httpClient);
+			var restApi = GetRestApiImplementation<TApi>();
 
 			try
 			{
@@ -54,6 +68,53 @@ namespace Refit.Insane.PowerPack.Services
 				throw;
 			}
 		}
+	    
+	    private TApi GetRestApiImplementation<TApi>()
+	    {
+		    if (_implementations.ContainsKey(typeof(TApi))) return (TApi)_implementations[typeof(TApi)];
+			
+		    var httpClientHandlerType = ApiDefinitionAttributeExtension.GetHttpClientHandlerType<TApi>();
+		    var httpClientMessageHandler = GetHandler(httpClientHandlerType);
+		    var httpClient = new HttpClient(httpClientMessageHandler)
+		    {
+			    BaseAddress = ApiDefinitionAttributeExtension.GetUri<TApi>(), 
+			    Timeout = ApiDefinitionAttributeExtension.GetTimeout<TApi>()
+		    };
+			
+		    var restApi = default(TApi);
+		    try
+		    {
+			    restApi = RestService.For<TApi>(httpClient);
+			    _implementations.Add(typeof(TApi), restApi);
+		    }
+		    catch (Exception ex)
+		    {
+			    System.Diagnostics.Debug.WriteLine(ex);
+		    }
+
+		    return restApi;
+	    }
+
+	    private DelegatingHandler GetHandler(Type httpClientHandlerType)
+	    {
+		    var httpClientMessageHandler = default(DelegatingHandler);
+
+		    if (_handlerFactories.ContainsKey(httpClientHandlerType) && !_handlerImplementations.ContainsKey(httpClientHandlerType))
+		    {
+			    var factory = _handlerFactories[httpClientHandlerType];
+			    _handlerImplementations.Add(httpClientHandlerType, factory());
+		    }
+
+		    if (_handlerImplementations.ContainsKey(httpClientHandlerType))
+			    httpClientMessageHandler = _handlerImplementations[httpClientHandlerType];
+		    else
+		    {
+			    httpClientMessageHandler = Activator.CreateInstance(httpClientHandlerType) as DelegatingHandler;
+			    _handlerImplementations.Add(httpClientHandlerType, httpClientMessageHandler);
+		    }
+
+		    return httpClientMessageHandler;
+	    }
 
         protected virtual bool CanPrepareResponse(ApiException fromApiException) => false;
 
