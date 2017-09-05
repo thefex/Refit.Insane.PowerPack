@@ -4,7 +4,9 @@ namespace Refit.Insane.PowerPack.Attributes
 {
     public class ApiDefinitionAttribute : Attribute
     {
-        public ApiDefinitionAttribute(string baseUri) : this(5)
+        private const int DefaultTimeoutInSeconds = 5;
+        
+        public ApiDefinitionAttribute(string baseUri) : this(DefaultTimeoutInSeconds)
         {
             BaseUri = baseUri;
             HttpClientHandlerType = typeof(HttpClientDiagnosticsHandler);
@@ -16,15 +18,13 @@ namespace Refit.Insane.PowerPack.Attributes
             HttpClientHandlerType = typeof(HttpClientDiagnosticsHandler);
         }
         
-        public ApiDefinitionAttribute(string baseUri, int apiTimeoutInSeconds, Type httpClientHandlerType) : this(apiTimeoutInSeconds)
+        public ApiDefinitionAttribute(string baseUri, Type httpClientHandlerType) : this(baseUri)
         {
-            BaseUri = baseUri;
             HttpClientHandlerType = httpClientHandlerType;
         }
         
-        public ApiDefinitionAttribute(string baseUri, Type httpClientHandlerType) : this(5)
+        public ApiDefinitionAttribute(string baseUri, int apiTimeoutInSeconds, Type httpClientHandlerType) : this(baseUri, apiTimeoutInSeconds)
         {
-            BaseUri = baseUri;
             HttpClientHandlerType = httpClientHandlerType;
         }
 
