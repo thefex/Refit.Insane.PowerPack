@@ -9,7 +9,8 @@ namespace Refit.Insane.PowerPack.Services
     {
         bool isAutoRetryEnabled = true;
         bool isCacheEnabled = true;
-
+        RefitSettings refitSettings;
+        
         public RestServiceBuilder WithAutoRetry(bool shouldEnableAutoRetry = true)
         {
             isAutoRetryEnabled = shouldEnableAutoRetry;
@@ -21,24 +22,33 @@ namespace Refit.Insane.PowerPack.Services
             isCacheEnabled = shouldEnableCache;
             return this;
         }
+
+        public RestServiceBuilder WithRefitSettings(RefitSettings refitSettingsForService)
+        {
+            refitSettings = refitSettingsForService;
+            return this;
+        }
         
         public IRestService BuildRestService(Assembly restApiAssembly) 
         {
-            var refitRestService = new RefitRestService();
+            var refitRestService = refitSettings != null ? new RefitRestService(refitSettings) : new RefitRestService();
 
             return BuildRestService(refitRestService, restApiAssembly);
         }
 
-        public IRestService BuildRestService(IDictionary<Type, DelegatingHandler> handlerImplementations, Assembly restApiAssembly) 
+        public IRestService BuildRestService(IDictionary<Type, DelegatingHandler> handlerImplementations, Assembly restApiAssembly)
         {
-            var refitRestService = new RefitRestService(handlerImplementations);
-
+            var refitRestService = refitSettings != null
+                ? new RefitRestService(handlerImplementations, refitSettings)
+                : new RefitRestService(handlerImplementations);
             return BuildRestService(refitRestService, restApiAssembly);
         }
         
         public IRestService BuildRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories, Assembly restApiAssembly) 
         {
-            var refitRestService = new RefitRestService(handlerFactories);
+            var refitRestService = refitSettings != null
+                ? new RefitRestService(handlerFactories, refitSettings)
+                : new RefitRestService(handlerFactories);
 
             return BuildRestService(refitRestService, restApiAssembly);
         }

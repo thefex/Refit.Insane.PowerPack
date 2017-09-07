@@ -14,11 +14,29 @@ namespace Refit.Insane.PowerPack.Services
 	    private readonly IDictionary<Type, Func<DelegatingHandler>> _handlerFactories;
 	    private readonly IDictionary<Type, DelegatingHandler> _handlerImplementations;
 	    private readonly IDictionary<Type, object> _implementations = new Dictionary<Type, object>();
+	    private readonly RefitSettings _refitSettings;
 
+	    public RefitRestService(RefitSettings refitSettings) : this()
+	    {
+		    _refitSettings = refitSettings;
+	    }
+	    
 	    public RefitRestService()
 	    {
 		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
 		    _handlerFactories = new Dictionary<Type, Func<DelegatingHandler>>();
+	    }
+
+	    public RefitRestService(IDictionary<Type, DelegatingHandler> handlerImplementations, RefitSettings refitSettings) : this(handlerImplementations)
+	    {
+		    _refitSettings = refitSettings;
+	    }
+		
+	    public RefitRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories, RefitSettings refitSettings) : this(handlerFactories)
+	    {
+		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
+		    _handlerFactories = handlerFactories;
+		    _refitSettings = refitSettings;
 	    }
 
 	    public RefitRestService(IDictionary<Type, DelegatingHandler> handlerImplementations)
@@ -84,7 +102,10 @@ namespace Refit.Insane.PowerPack.Services
 		    var restApi = default(TApi);
 		    try
 		    {
-			    restApi = RestService.For<TApi>(httpClient);
+			    restApi = _refitSettings != null
+				    ? RestService.For<TApi>(httpClient, _refitSettings)
+				    : RestService.For<TApi>(httpClient);
+			    
 			    _implementations.Add(typeof(TApi), restApi);
 		    }
 		    catch (Exception ex)
