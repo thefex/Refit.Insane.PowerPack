@@ -15,3 +15,6 @@ https://github.com/thefex/Refit.Insane.PowerPack/blob/master/refit_presentation.
 
 # Acknowledgment
 This library has been created thanks to help and support from InsaneLab.com (http://www.insanelab.com). Thanks for giving me time to work on this project - you guys rock :-)
+
+Thanks to Artur Malendowicz (https://github.com/Immons) for implementing multiple API support (ApiDefinition)
+Thanks to Jakub Kaprzyk (https://github.com/qbus00) for implementing ApiDefinition Timeout support.
