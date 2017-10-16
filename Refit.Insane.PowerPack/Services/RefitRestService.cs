@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Refit.Insane.PowerPack.Data;
 using System.Net;
 using Refit.Insane.PowerPack.Attributes;
+using Refit.Insane.PowerPack.Configuration;
 
 namespace Refit.Insane.PowerPack.Services
 {
@@ -99,6 +100,12 @@ namespace Refit.Insane.PowerPack.Services
 			    BaseAddress = ApiDefinitionAttributeExtension.GetUri<TApi>(), 
 			    Timeout = ApiDefinitionAttributeExtension.GetTimeout<TApi>()
 		    };
+		    
+		    if (httpClient.BaseAddress == null)
+			    throw new InvalidOperationException($"HttpClient Base Address has not been set. " +
+			                                        $"In case you are not using {nameof(ApiDefinitionAttribute)} on your interface, set global constant in:" +
+			                                        $"{nameof(BaseApiConfiguration)} class.");
+			    
 			
 		    var restApi = default(TApi);
 		    try
