@@ -16,7 +16,7 @@ namespace Refit.Insane.PowerPack.Attributes
         public static TimeSpan GetTimeout<TApi>()
         {
             var attribute = GetAttribute<TApi>();
-            return attribute?.ApiTimeout ?? TimeSpan.FromSeconds(5);
+            return attribute?.ApiTimeout ?? BaseApiConfiguration.Timeout;
         }
 		
         public static Type GetHttpClientHandlerType<TApi>()
