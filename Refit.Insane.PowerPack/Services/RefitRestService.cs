@@ -62,7 +62,7 @@ namespace Refit.Insane.PowerPack.Services
 			}
 			catch (ApiException refitApiException)
 			{
-				if (refitApiException.StatusCode == HttpStatusCode.Forbidden)
+				if (CanPrepareResponse(refitApiException))
 					return GetResponse<TResult>(refitApiException);
 
 				throw;
@@ -80,7 +80,7 @@ namespace Refit.Insane.PowerPack.Services
 			}
 			catch (ApiException refitApiException)
 			{
-				if (refitApiException.StatusCode == HttpStatusCode.Forbidden)
+				if (CanPrepareResponse(refitApiException))
 					return GetResponse(refitApiException);
 
 				throw;
@@ -89,7 +89,8 @@ namespace Refit.Insane.PowerPack.Services
 	    
 	    private TApi GetRestApiImplementation<TApi>()
 	    {
-		    if (_implementations.ContainsKey(typeof(TApi))) return (TApi)_implementations[typeof(TApi)];
+		    if (_implementations.ContainsKey(typeof(TApi))) 
+			    return (TApi)_implementations[typeof(TApi)];
 			
 		    var httpClientHandlerType = ApiDefinitionAttributeExtension.GetHttpClientHandlerType<TApi>();
 		    var httpClientMessageHandler = GetHandler(httpClientHandlerType);
