@@ -4,6 +4,13 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 # Installation Guide
 Install-Package Refit.Insane.PowerPack
 
+# Changelog
+v. 1.0.3
+- "User friendly" (with suggestion) instead of NullReferenceException is thrown when BaseUri/ApiDefinition Uri is not set #8
+- Support for setting global timeout (when ApiDefinitionAttribute is not set on interface) in BaseApiConfiguration class #7
+- Fixed bugs which prevented handling ApiException (custom status codes) when inheriting from RefitRestService #6
+
+
 # Documentation
 1. Check Sample app which is available in this repository.
 2. Read presentation I have created for Cracow #Xamarines - Xamarines.com
