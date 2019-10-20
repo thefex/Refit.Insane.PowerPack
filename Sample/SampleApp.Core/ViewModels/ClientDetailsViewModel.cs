@@ -43,13 +43,15 @@ namespace SampleApp.Core.ViewModels
                 if (clientDetailsResponse.IsSuccess)
                     Properties = clientDetailsResponse.Results.Properties;
                 else
-                    MessengingHelper.RequestToast(this, clientDetailsResponse.FormattedErrorMessages);
+                   MessengingHelper.RequestToast(this, clientDetailsResponse.FormattedErrorMessages);
 
             }
             catch (Exception e)
             {
                 MessengingHelper.RequestToast(this, e);
-            } finally {
+            }
+            finally
+            {
                 IsAsynchronousOperationInProgress = false;
             }
         }
@@ -82,15 +84,21 @@ namespace SampleApp.Core.ViewModels
                     MessengingHelper.RequestToast(this, updateClientDetailsResponse.FormattedErrorMessages);
                 else
                 {
-                    await RefitCacheService.Instance.UpdateCache<IClientApi, ClientDetails>(api => api.GetClientDetails(clientId, default(CancellationToken)), 
-                                                                                            new ClientDetails() { Properties = Properties});
+                    await RefitCacheService.Instance.UpdateCache<IClientApi, ClientDetails>
+                         (api => api.GetClientDetails(
+                               clientId, 
+                                default(CancellationToken)),
+                               new ClientDetails() { Properties = Properties });
+                               
                     MessengingHelper.RequestToast(this, "We have successfully updated Client Details data.");
                 }
             }
             catch (Exception e)
             {
                 MessengingHelper.RequestToast(this, e);
-            } finally {
+            }
+            finally
+            {
                 IsAsynchronousOperationInProgress = false;
             }
         });
