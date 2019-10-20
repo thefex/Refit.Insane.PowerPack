@@ -5,6 +5,8 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 Install-Package Refit.Insane.PowerPack
 
 # Changelog
+v. 1.1.1
+NetStandard 2.0 support
 v. 1.0.3
 - "User friendly" (with suggestion) instead of NullReferenceException is thrown when BaseUri/ApiDefinition Uri is not set #8
 - Support for setting global timeout (when ApiDefinitionAttribute is not set on interface) in BaseApiConfiguration class #7
