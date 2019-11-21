@@ -6,19 +6,23 @@ using Refit.Insane.PowerPack.Configuration;
 namespace Refit.Insane.PowerPack.Attributes
 {
     public static class ApiDefinitionAttributeExtension
-    {	
+    {
         public static Uri GetUri<TApi>()
         {
             var attribute = GetAttribute<TApi>();
-            return attribute != null ? new Uri(attribute.BaseUri) : BaseApiConfiguration.ApiUri;
+
+            // If the value of the URI seems to be empty, always fallback on the BaseApiConfiguration value
+            bool hasAttributeUri = attribute != null && !string.IsNullOrEmpty(attribute.BaseUri?.Trim());
+
+            return hasAttributeUri ? new Uri(attribute.BaseUri) : BaseApiConfiguration.ApiUri;
         }
-        
+
         public static TimeSpan GetTimeout<TApi>()
         {
             var attribute = GetAttribute<TApi>();
             return attribute?.ApiTimeout ?? BaseApiConfiguration.Timeout;
         }
-		
+
         public static Type GetHttpClientHandlerType<TApi>()
         {
             var attribute = GetAttribute<TApi>();
