@@ -63,8 +63,8 @@ namespace Refit.Insane.PowerPack.Services
 			}
 			catch (ApiException refitApiException)
 			{
-				if (CanPrepareResponse(refitApiException))
-					return GetResponse<TResult>(refitApiException);
+				if (await CanPrepareResponse(refitApiException))
+					return await GetResponse<TResult>(refitApiException);
 
 				throw;
 			}
@@ -81,8 +81,8 @@ namespace Refit.Insane.PowerPack.Services
 			}
 			catch (ApiException refitApiException)
 			{
-				if (CanPrepareResponse(refitApiException))
-					return GetResponse(refitApiException);
+				if (await CanPrepareResponse(refitApiException))
+					return await GetResponse(refitApiException);
 
 				throw;
 			}
@@ -145,14 +145,14 @@ namespace Refit.Insane.PowerPack.Services
 		    return httpClientMessageHandler;
 	    }
 
-        protected virtual bool CanPrepareResponse(ApiException fromApiException) => false;
+        protected virtual Task<bool> CanPrepareResponse(ApiException fromApiException) => Task.FromResult(false);
 
-        protected virtual Response GetResponse(ApiException fromApiException) {
+        protected virtual Task<Response> GetResponse(ApiException fromApiException) {
             throw new InvalidOperationException($"If you are returning true in CanPrepareResponse method " +
                                                 "you have to override GetResponse methods.");
         }
 
-        protected virtual Response<TResult> GetResponse<TResult>(ApiException fromApiException){
+        protected virtual Task<Response<TResult>> GetResponse<TResult>(ApiException fromApiException){
 			throw new InvalidOperationException($"If you are returning true in CanPrepareResponse method " +
 												"you have to override GetResponse methods.");
         }
