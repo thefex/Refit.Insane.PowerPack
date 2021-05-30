@@ -5,9 +5,16 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 Install-Package Refit.Insane.PowerPack
 
 # Changelog
+v. 1.2.3
+- Updated refit/akavache/polly to most recent stable.
+- Changed AppRestService methods to async - PrepareResponse, CanPrepareResponse etc. (breaking change)
+- Package supports net5.0 and netstandard2.1 now.
+
 v. 1.1.1
-NetStandard 2.0 support
+
+- NetStandard 2.0 support
 v. 1.0.3
+
 - "User friendly" (with suggestion) instead of NullReferenceException is thrown when BaseUri/ApiDefinition Uri is not set #8
 - Support for setting global timeout (when ApiDefinitionAttribute is not set on interface) in BaseApiConfiguration class #7
 - Fixed bugs which prevented handling ApiException (custom status codes) when inheriting from RefitRestService #6
