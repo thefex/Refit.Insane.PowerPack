@@ -13,6 +13,7 @@ v. 1.2.3
 v. 1.1.1
 
 - NetStandard 2.0 support
+
 v. 1.0.3
 
 - "User friendly" (with suggestion) instead of NullReferenceException is thrown when BaseUri/ApiDefinition Uri is not set #8
