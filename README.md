@@ -5,6 +5,11 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 Install-Package Refit.Insane.PowerPack
 
 # Changelog
+v. 1.2.4
+- Updated refit/akavache/polly to latest stable.
+- Nuget Package supports NetStandard 2.0 again.
+- Nuget Package supports net6.0 and fixed net5.0 support (it might be broken in 1.2.3).
+
 v. 1.2.3
 - Updated refit/akavache/polly to most recent stable.
 - Changed AppRestService methods to async - PrepareResponse, CanPrepareResponse etc. (breaking change)

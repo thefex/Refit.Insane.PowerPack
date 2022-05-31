@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net5.0;net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 
@@ -9,8 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="akavache" Version="7.2.1" />
-    <PackageReference Include="Polly" Version="7.2.2" />
-    <PackageReference Include="refit" Version="6.0.38" />
+    <PackageReference Include="akavache" Version="8.1.1" />
+    <PackageReference Include="Polly" Version="7.2.3" />
+    <PackageReference Include="refit" Version="6.3.2" />
   </ItemGroup>
 </Project>
