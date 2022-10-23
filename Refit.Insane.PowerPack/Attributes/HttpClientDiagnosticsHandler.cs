@@ -19,26 +19,29 @@ namespace Refit.Insane.PowerPack.Attributes
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            if (!Debugger.IsAttached)
+                return await SendAsync(request, cancellationToken).ConfigureAwait(false);
+            
             HttpResponseMessage httpResponseMessage;
             Stopwatch totalElapsedTime = Stopwatch.StartNew();
-            Debug.WriteLine($"Request: {request}");
+            Trace.WriteLine($"Request: {request}");
             if (request?.Content != null)
             {
                 string str = await request.Content.ReadAsStringAsync().ConfigureAwait(false);
-                Debug.WriteLine($"Request Content: {str}");
+                Trace.WriteLine($"Request Content: {str}");
             }
             Stopwatch responseElapsedTime = Stopwatch.StartNew();
             HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
-            Debug.WriteLine($"Response: {response}");
+            Trace.WriteLine($"Response: {response}");
             if (response?.Content != null)
             {
                 string str = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                Debug.WriteLine($"Response Content: {str}");
+                Trace.WriteLine($"Response Content: {str}");
             }
             responseElapsedTime.Stop();
-            Debug.WriteLine($"Response elapsed time: {responseElapsedTime.ElapsedMilliseconds} ms");
+            Trace.WriteLine($"Response elapsed time: {responseElapsedTime.ElapsedMilliseconds} ms");
             totalElapsedTime.Stop();
-            Debug.WriteLine($"Total elapsed time: {totalElapsedTime.ElapsedMilliseconds} ms");
+            Trace.WriteLine($"Total elapsed time: {totalElapsedTime.ElapsedMilliseconds} ms");
             httpResponseMessage = response;
             return httpResponseMessage;
         }
