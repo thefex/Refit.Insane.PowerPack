@@ -5,6 +5,15 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 Install-Package Refit.Insane.PowerPack
 
 # Changelog
+v. 6.3.2.0, v. 5.2.4.0
+
+- New versioning rule = RefitVersionNumber.x - where x is PowerPack version
+- Added method to retrieve cache manually via RefitCacheService.Instance
+- Added comment/description into ApiAttribute ctor - regarding HttpClientHandlers
+- Version bump of Akavache
+- Added packages for Refit 5.2.4 & 6.3.2
+- Fixed HttpClientDiagnosticsHandler - it never worked with Release version -.- -> if debugger attached it will trace request/response/performance etc..
+
 v. 1.2.4
 - Updated refit/akavache/polly to latest stable.
 - Nuget Package supports NetStandard 2.0 again.

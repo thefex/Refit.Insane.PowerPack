@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Refit.Insane.PowerPack</id>
-        <version>1.2.4</version>
+        <version>6.3.2.0</version>
         <title>Refit.Insane.PowerPack</title>
         <authors>Przemysław Raciborski [thefex]</authors>
         <projectUrl>https://github.com/thefex/Refit.Insane.PowerPack</projectUrl>
@@ -10,7 +10,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Refit Insane PowerPack is a Refit library extensions which provides attribute based cache and auto-retry features.</description>
         <dependencies>
-            <dependency id="akavache" version="8.1.1" />
+            <dependency id="akavache" version="9.0.1" />
             <dependency id="Polly" version="7.2.3" />
             <dependency id="Refit" version="6.3.2" />
         </dependencies>
