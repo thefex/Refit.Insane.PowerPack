@@ -95,7 +95,9 @@ namespace Refit.Insane.PowerPack.Services
 			
 		    var httpClientHandlerType = ApiDefinitionAttributeExtension.GetHttpClientHandlerType<TApi>();
 		    var httpClientMessageHandler = GetHandler(httpClientHandlerType);
-		    var httpClient = new HttpClient(httpClientMessageHandler)
+		    
+		    // note is not an issue HttpClient is not singleton, the only thing that matters is that underlying HttpClientHandler has to be resued
+		    var httpClient = new HttpClient(httpClientMessageHandler) 
 		    {
 			    BaseAddress = ApiDefinitionAttributeExtension.GetUri<TApi>(), 
 			    Timeout = ApiDefinitionAttributeExtension.GetTimeout<TApi>()
