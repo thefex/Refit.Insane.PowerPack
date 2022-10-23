@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="akavache" Version="8.1.1" />
+    <PackageReference Include="akavache" Version="9.0.1" />
     <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="refit" Version="6.3.2" />
   </ItemGroup>
