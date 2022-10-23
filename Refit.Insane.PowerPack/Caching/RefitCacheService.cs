@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Refit.Insane.PowerPack.Caching.Internal;
+using Refit.Insane.PowerPack.Data;
 
 namespace Refit.Insane.PowerPack.Caching
 {
@@ -17,6 +19,20 @@ namespace Refit.Insane.PowerPack.Caching
             persistedCache = new AkavachePersistedCache();
         }
 
+        public async Task<Response<TResult>> GetCache<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> forApiMethodCall)
+        {
+            if (!_refitCacheController.IsMethodCacheable(forApiMethodCall))
+                return new Response<TResult>().AddErrorMessage("Request method does not have [RefitCache] attribute set.");
+
+            var cacheKey = _refitCacheController.GetCacheKey(forApiMethodCall);
+            var cachedValue = await persistedCache.Get<TResult>(cacheKey);
+            
+            if (cachedValue != null)
+                return new Response<TResult>(cachedValue);
+
+            return new Response<TResult>().AddErrorMessage("Cache for requested method is empty.");
+        }
+        
         public Task UpdateCache<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> forApiMethodCall, TResult newCacheValue)
         {
             if (!_refitCacheController.IsMethodCacheable(forApiMethodCall))
