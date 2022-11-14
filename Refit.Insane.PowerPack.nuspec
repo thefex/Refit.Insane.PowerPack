@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Refit.Insane.PowerPack</id>
-        <version>6.3.2.0</version>
+        <version>6.3.2.1-rc</version>
         <title>Refit.Insane.PowerPack</title>
         <authors>Przemysław Raciborski [thefex]</authors>
         <projectUrl>https://github.com/thefex/Refit.Insane.PowerPack</projectUrl>

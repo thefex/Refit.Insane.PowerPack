@@ -5,6 +5,14 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 Install-Package Refit.Insane.PowerPack
 
 # Changelog
+v. 6.3.2.1-rc, v. 5.2.4.1-rc
+
+Release candidate.
+
+- Added RefitCacheLocation into [RefitCacheAttribute] - support for Akavache BlobStorage (please read akavache documentation or read attribute summary) - default IPersistedCache service.
+- Added possibility to force cache refresh (even if cached version already exists ) - optional boolean on Execute method. Use-case: you have cache that never expires but you want to update it (without clearing) for ex. lists and pull to refresh. 
+- Added possibility to force cache refresh based on time elapsed since last save - use new Execute method with Func<TimeSpan?, bool> parameter - nullable TimeSpan (null = cache has no entry) since last update. Use-case: you have app settings that should never be cleared (persisted) - but it should also be updated every ~24 hours.  
+
 v. 6.3.2.0, v. 5.2.4.0
 
 - New versioning rule = RefitVersionNumber.x - where x is PowerPack version
@@ -36,11 +44,12 @@ v. 1.0.3
 
 
 # Documentation
-1. Check Sample app which is available in this repository.
-2. Read presentation I have created for Cracow #Xamarines - Xamarines.com
+1. Check Sample app which is available in this repository. 
+2. Read changelog above!
+3. Read presentation I have created for Cracow #Xamarines - Xamarines.com
 https://github.com/thefex/Refit.Insane.PowerPack/blob/master/refit_presentation.pdf
 
-3. In order to use ApiDefinitionAttribute you need to either:
+4. In order to use ApiDefinitionAttribute you need to either:
 * Attach attributes to each refit API interface
 * Attach attribute to only specific API interfaces but also set BaseApiConfiguration.ApiUri which will be used as base uri for all interfaces without ApiDefinition attribute
 
