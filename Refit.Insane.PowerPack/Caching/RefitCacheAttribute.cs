@@ -9,6 +9,8 @@ namespace Refit.Insane.PowerPack.Caching
         /// </summary>
         public TimeSpan? CacheTtl { get; }
 
+        public RefitCacheLocation CacheLocation { get; set; } = RefitCacheLocation.Local;
+
         public RefitCacheAttribute()
         {
 

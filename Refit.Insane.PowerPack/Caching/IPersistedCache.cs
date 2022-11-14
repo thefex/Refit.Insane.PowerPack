@@ -13,7 +13,7 @@ namespace Refit.Insane.PowerPack.Caching
         /// <param name="valueToCache">Value to cache.</param>
         /// <param name="timeToLive">Time to live of cache value - in case it's null - it will not be after this time.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        Task Save<T>(string atKey, T valueToCache, TimeSpan? timeToLive);
+        Task Save<T>(RefitCacheLocation cacheLocation, string atKey, T valueToCache, TimeSpan? timeToLive);
 
         /// <summary>
         /// Gets cache value at the specified key.
@@ -21,15 +21,15 @@ namespace Refit.Insane.PowerPack.Caching
         /// <returns>Cached value</returns>
         /// <param name="atKey">At key.</param>
         /// <typeparam name="TResult">Cached value type.</typeparam>
-        Task<TResult> Get<TResult>(string atKey);
+        Task<TResult> Get<TResult>(RefitCacheLocation cacheLocation, string atKey);
 
-        Task<DateTimeOffset?> GetSavedAtTime(string atKey);
+        Task<DateTimeOffset?> GetSavedAtTime(RefitCacheLocation cacheLocation, string atKey);
 
         /// <summary>
         /// Deletes the cached value at specified key.
         /// </summary>
         /// <returns></returns>
         /// <param name="cachedValueAtKey">Cached value key to delete.</param>
-        Task Delete(string cachedValueAtKey);
+        Task Delete(RefitCacheLocation cacheLocation, string cachedValueAtKey);
     }
 }

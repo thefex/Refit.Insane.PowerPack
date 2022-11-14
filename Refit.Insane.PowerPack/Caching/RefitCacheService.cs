@@ -25,7 +25,8 @@ namespace Refit.Insane.PowerPack.Caching
                 return new Response<DateTimeOffset>().AddErrorMessage("Request method does not have [RefitCache] attribute set.");
 
             var cacheKey = _refitCacheController.GetCacheKey(forApiMethodCall);
-            var savedAtOffset = await persistedCache.GetSavedAtTime(cacheKey);
+            var refitCacheAttribute = _refitCacheController.GetRefitCacheAttribute(forApiMethodCall);
+            var savedAtOffset = await persistedCache.GetSavedAtTime(refitCacheAttribute.CacheAttribute.CacheLocation, cacheKey);
             
             if (savedAtOffset.HasValue)
                 return new Response<DateTimeOffset>(savedAtOffset.Value);
@@ -39,7 +40,8 @@ namespace Refit.Insane.PowerPack.Caching
                 return new Response<TResult>().AddErrorMessage("Request method does not have [RefitCache] attribute set.");
 
             var cacheKey = _refitCacheController.GetCacheKey(forApiMethodCall);
-            var cachedValue = await persistedCache.Get<TResult>(cacheKey);
+            var cacheAttribute = _refitCacheController.GetRefitCacheAttribute(forApiMethodCall);
+            var cachedValue = await persistedCache.Get<TResult>(cacheAttribute.CacheAttribute.CacheLocation, cacheKey);
             
             if (cachedValue != null)
                 return new Response<TResult>(cachedValue);
@@ -55,16 +57,17 @@ namespace Refit.Insane.PowerPack.Caching
             var cacheKey = _refitCacheController.GetCacheKey(forApiMethodCall);
             var refitCacheAttribute = _refitCacheController.GetRefitCacheAttribute(forApiMethodCall);
 
-            return persistedCache.Save(cacheKey, newCacheValue, refitCacheAttribute.CacheAttribute.CacheTtl);
+            return persistedCache.Save(refitCacheAttribute.CacheAttribute.CacheLocation, cacheKey, newCacheValue, refitCacheAttribute.CacheAttribute.CacheTtl);
         }
 
         public Task ClearCache<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> forApiMethodCall){
 			if (!_refitCacheController.IsMethodCacheable(forApiMethodCall))
 				return Task.FromResult(true);
-
+            
 			var cacheKey = _refitCacheController.GetCacheKey(forApiMethodCall);
+            var refitCacheAttribute = _refitCacheController.GetRefitCacheAttribute(forApiMethodCall);
 
-            return persistedCache.Delete(cacheKey);
+            return persistedCache.Delete(refitCacheAttribute.CacheAttribute.CacheLocation, cacheKey);
         }
 
         /// <summary>

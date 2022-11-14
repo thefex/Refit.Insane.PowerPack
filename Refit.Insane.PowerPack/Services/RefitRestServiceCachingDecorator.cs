@@ -34,7 +34,8 @@ namespace Refit.Insane.PowerPack.Services
                 return await _decoratedRestService.Execute(executeApiMethod, forceExecuteEvenIfResponseIsInCache).ConfigureAwait(false);
 
             var cacheKey = _refitCacheController.GetCacheKey(executeApiMethod);
-            var cachedValue = await persistedCache.Get<TResult>(cacheKey);
+            var refitCacheAttribute = _refitCacheController.GetRefitCacheAttribute(executeApiMethod);
+            var cachedValue = await persistedCache.Get<TResult>(refitCacheAttribute.CacheAttribute.CacheLocation, cacheKey);
 
             if (cachedValue != null && !forceExecuteEvenIfResponseIsInCache)
                 return new Response<TResult>(cachedValue);
@@ -45,7 +46,7 @@ namespace Refit.Insane.PowerPack.Services
             {
                 var refitCacheAttributes = _refitCacheController.GetRefitCacheAttribute<TApi, TResult>(executeApiMethod);
 
-                await persistedCache.Save(cacheKey, restResponse.Results, refitCacheAttributes.CacheAttribute.CacheTtl);
+                await persistedCache.Save(refitCacheAttributes.CacheAttribute.CacheLocation, cacheKey, restResponse.Results, refitCacheAttributes.CacheAttribute.CacheTtl);
             }
 
             return restResponse;
@@ -58,7 +59,8 @@ namespace Refit.Insane.PowerPack.Services
             if (_refitCacheController.IsMethodCacheable(executeApiMethod))
             {
                 var cacheKey = _refitCacheController.GetCacheKey(executeApiMethod);
-                var lastSaveDate = await persistedCache.GetSavedAtTime(cacheKey);
+                var refitCacheAttribute = _refitCacheController.GetRefitCacheAttribute(executeApiMethod);
+                var lastSaveDate = await persistedCache.GetSavedAtTime(refitCacheAttribute.CacheAttribute.CacheLocation, cacheKey);
 
                 TimeSpan? timeDifference = null;
                 if (lastSaveDate.HasValue) 

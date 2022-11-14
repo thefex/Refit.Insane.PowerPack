@@ -26,8 +26,8 @@ namespace Refit.Insane.PowerPack.Tests
             )).ReturnsAsync(new Refit.Insane.PowerPack.Data.Response<IEnumerable<string>>(new List<string>()));
 
             _persistedCacheMock = new Mock<IPersistedCache>();
-            _persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(default(IEnumerable<string>));
-            _persistedCacheMock.Setup(x => x.Save<IEnumerable<string>>(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()));
+            _persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))!.ReturnsAsync(default(IEnumerable<string>));
+            _persistedCacheMock.Setup(x => x.Save<IEnumerable<string>>(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()));
 
             _sut = new RefitRestServiceCachingDecorator(_mockedRestService.Object, _persistedCacheMock.Object, new Refit.Insane.PowerPack.Caching.Internal.RefitCacheController());
         }
@@ -53,7 +53,7 @@ namespace Refit.Insane.PowerPack.Tests
         }
 
         private void VerifyThatCacheSaveHasBeenCalled(Times howManyTimes){
-			_persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(),
+			_persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(),
 												   It.IsAny<IEnumerable<string>>(),
                                                    It.IsAny<TimeSpan?>()), howManyTimes);
         }
@@ -65,20 +65,20 @@ namespace Refit.Insane.PowerPack.Tests
 
             IEnumerable<string> cachedList = null;
 
-            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(() => cachedList);
+            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))!.ReturnsAsync(() => cachedList);
 
             var systemUnderTest = new RefitRestServiceCachingDecorator(_mockedRestService.Object,
                 persistedCacheMock.Object, new RefitCacheController());
             
             await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), false);
             
-            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
 
             cachedList = new List<string>();
 
             await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), false);
             
-            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
         
         
@@ -89,20 +89,20 @@ namespace Refit.Insane.PowerPack.Tests
 
             IEnumerable<string> cachedList = null;
 
-            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(() => cachedList);
+            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))!.ReturnsAsync(() => cachedList);
 
             var systemUnderTest = new RefitRestServiceCachingDecorator(_mockedRestService.Object,
                 persistedCacheMock.Object, new RefitCacheController());
             
             await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), true);
             
-            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
 
             cachedList = new List<string>();
 
             await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), true);
             
-            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Exactly(2));
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Exactly(2));
         }
         
         [Test]
@@ -110,8 +110,8 @@ namespace Refit.Insane.PowerPack.Tests
         {
             var persistedCacheMock = new Mock<IPersistedCache>();
 
-            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(new List<string>() { "test cache"});
-            persistedCacheMock.Setup(x => x.GetSavedAtTime(It.IsAny<string>()))
+            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))!.ReturnsAsync(new List<string>() { "test cache"});
+            persistedCacheMock.Setup(x => x.GetSavedAtTime(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))
                 .ReturnsAsync(() => DateTimeOffset.UtcNow.Subtract(TimeSpan.FromHours(12)));
 
             var systemUnderTest = new RefitRestServiceCachingDecorator(_mockedRestService.Object,
@@ -119,7 +119,7 @@ namespace Refit.Insane.PowerPack.Tests
             
             await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), timeSpan => timeSpan.HasValue && timeSpan.Value.TotalHours >= 24);
             
-            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Never);
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Never);
         }
         
         [Test]
@@ -127,8 +127,8 @@ namespace Refit.Insane.PowerPack.Tests
         {
             var persistedCacheMock = new Mock<IPersistedCache>();
 
-            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(new List<string>() { "test cache"});
-            persistedCacheMock.Setup(x => x.GetSavedAtTime(It.IsAny<string>()))
+            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))!.ReturnsAsync(new List<string>() { "test cache"});
+            persistedCacheMock.Setup(x => x.GetSavedAtTime(It.IsAny<RefitCacheLocation>(), It.IsAny<string>()))
                 .ReturnsAsync(() => DateTimeOffset.UtcNow.Subtract(TimeSpan.FromHours(25)));
 
             var systemUnderTest = new RefitRestServiceCachingDecorator(_mockedRestService.Object,
@@ -136,7 +136,7 @@ namespace Refit.Insane.PowerPack.Tests
             
             await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), timeSpan => timeSpan.HasValue && timeSpan.Value.TotalHours >= 24);
             
-            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<RefitCacheLocation>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
     }
 }
