@@ -87,5 +87,8 @@ namespace Refit.Insane.PowerPack.Services
         public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, bool forceExecuteEvenIfResponseIsInCache)
             => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, forceExecuteEvenIfResponseIsInCache), executeApiMethod.Body as MethodCallExpression);
 
+        public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod,
+            Func<TimeSpan?, bool> shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate)
+            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate), executeApiMethod.Body as MethodCallExpression);
     }
 }

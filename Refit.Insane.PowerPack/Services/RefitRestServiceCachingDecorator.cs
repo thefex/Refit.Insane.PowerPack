@@ -50,7 +50,26 @@ namespace Refit.Insane.PowerPack.Services
 
             return restResponse;
         }
-        
+
+        public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod,
+            Func<TimeSpan?, bool> shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate)
+        {
+            bool shouldForceExecute = false;
+            if (_refitCacheController.IsMethodCacheable(executeApiMethod))
+            {
+                var cacheKey = _refitCacheController.GetCacheKey(executeApiMethod);
+                var lastSaveDate = await persistedCache.GetSavedAtTime(cacheKey);
+
+                TimeSpan? timeDifference = null;
+                if (lastSaveDate.HasValue) 
+                    timeDifference = DateTimeOffset.UtcNow - lastSaveDate.Value;
+
+                shouldForceExecute = shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate(timeDifference);
+            }
+
+            return await Execute(executeApiMethod, shouldForceExecute);
+        }
+
         public Task<Response> Execute<TApi>(Expression<Func<TApi, Task>> executeApiMethod) => _decoratedRestService.Execute(executeApiMethod);
     }
 }

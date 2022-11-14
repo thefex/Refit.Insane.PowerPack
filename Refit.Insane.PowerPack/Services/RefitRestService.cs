@@ -70,6 +70,10 @@ namespace Refit.Insane.PowerPack.Services
 			}
 		}
 
+		public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod,
+			Func<TimeSpan?, bool> shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate) => Execute(executeApiMethod, false);
+
+
 		public async Task<Response> Execute<TApi>(Expression<Func<TApi, Task>> executeApiMethod)
 		{
 			var restApi = GetRestApiImplementation<TApi>();

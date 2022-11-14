@@ -104,5 +104,39 @@ namespace Refit.Insane.PowerPack.Tests
             
             persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Exactly(2));
         }
+        
+        [Test]
+        public async Task Execute_RestInterfaceDoesHaveCacheAttribute_WhenCacheHasItem_WhenPersistedStorageReturnsTimeSpanLessThan24Hours_PersistedCacheSaveIsNotCalled()
+        {
+            var persistedCacheMock = new Mock<IPersistedCache>();
+
+            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(new List<string>() { "test cache"});
+            persistedCacheMock.Setup(x => x.GetSavedAtTime(It.IsAny<string>()))
+                .ReturnsAsync(() => DateTimeOffset.UtcNow.Subtract(TimeSpan.FromHours(12)));
+
+            var systemUnderTest = new RefitRestServiceCachingDecorator(_mockedRestService.Object,
+                persistedCacheMock.Object, new RefitCacheController());
+            
+            await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), timeSpan => timeSpan.HasValue && timeSpan.Value.TotalHours >= 24);
+            
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Never);
+        }
+        
+        [Test]
+        public async Task Execute_RestInterfaceDoesHaveCacheAttribute_WhenCacheHasItem_WhenPersistedStorageReturnsTimeSpanHigherThan24Hours_PersistedCacheSaveIsNotCalled()
+        {
+            var persistedCacheMock = new Mock<IPersistedCache>();
+
+            persistedCacheMock.Setup(x => x.Get<IEnumerable<string>>(It.IsAny<string>()))!.ReturnsAsync(new List<string>() { "test cache"});
+            persistedCacheMock.Setup(x => x.GetSavedAtTime(It.IsAny<string>()))
+                .ReturnsAsync(() => DateTimeOffset.UtcNow.Subtract(TimeSpan.FromHours(25)));
+
+            var systemUnderTest = new RefitRestServiceCachingDecorator(_mockedRestService.Object,
+                persistedCacheMock.Object, new RefitCacheController());
+            
+            await systemUnderTest.Execute<ICacheRestMockApi, IEnumerable<string>>(api => api.GetItems("test"), timeSpan => timeSpan.HasValue && timeSpan.Value.TotalHours >= 24);
+            
+            persistedCacheMock.Verify(x => x.Save(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan?>()), Times.Once);
+        }
     }
 }
