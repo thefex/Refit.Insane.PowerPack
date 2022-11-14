@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Refit.Insane.PowerPack.Caching;
+﻿using Refit.Insane.PowerPack.Caching;
 
-namespace Tests
+namespace Refit.Insane.PowerPack.Tests
 {
     public interface ICacheRestMockApi
     {
         Task<IEnumerable<string>> CreateNewItem(string itemId);
 
-        [RefitCacheAttribute]
+        [RefitCache]
         Task<IEnumerable<string>> GetItems();
 
         [RefitCache]

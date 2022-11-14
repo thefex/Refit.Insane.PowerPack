@@ -11,6 +11,11 @@ namespace Refit.Insane.PowerPack.Caching.Internal
         {
         }
 
+        public async Task<DateTimeOffset?> GetSavedAtTime(string atKey)
+        {
+            return await BlobCache.LocalMachine.GetCreatedAt(atKey);
+        }
+
         public async Task Delete(string cachedValueAtKey)
         {
             await BlobCache.LocalMachine.Invalidate(cachedValueAtKey);

@@ -18,6 +18,20 @@ namespace Refit.Insane.PowerPack.Caching
             _refitCacheController = new RefitCacheController();
             persistedCache = new AkavachePersistedCache();
         }
+        
+        public async Task<Response<DateTimeOffset>> GetSavedAt<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> forApiMethodCall)
+        {
+            if (!_refitCacheController.IsMethodCacheable(forApiMethodCall))
+                return new Response<DateTimeOffset>().AddErrorMessage("Request method does not have [RefitCache] attribute set.");
+
+            var cacheKey = _refitCacheController.GetCacheKey(forApiMethodCall);
+            var savedAtOffset = await persistedCache.GetSavedAtTime(cacheKey);
+            
+            if (savedAtOffset.HasValue)
+                return new Response<DateTimeOffset>(savedAtOffset.Value);
+
+            return new Response<DateTimeOffset>().AddErrorMessage("Cache for requested method is empty.");
+        }
 
         public async Task<Response<TResult>> GetCache<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> forApiMethodCall)
         {

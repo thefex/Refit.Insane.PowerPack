@@ -1,11 +1,7 @@
-﻿using NUnit.Framework;
-using System;
+﻿using Moq;
 using Refit.Insane.PowerPack.Services;
-using Moq;
-using Refit;
-using System.Net.Http;
 
-namespace Tests
+namespace Refit.Insane.PowerPack.Tests
 {
     [TestFixture()]
     public class RefitRestServiceRetryProxyTests
@@ -16,7 +12,7 @@ namespace Tests
         int executedRestVoidMethodCount = 0;
         int executedRestNonVoidMethodCount = 0;
 
-        [SetUpAttribute]
+        [SetUp]
         public void Setup()
         {
             executedRestVoidMethodCount = 0;
@@ -28,7 +24,7 @@ namespace Tests
         }
 
         [Test()]
-        public async void NonVoidMethod_ExecutedAndReturnedSuccess_ItShouldBeExecutedOnce()
+        public async Task NonVoidMethod_ExecutedAndReturnedSuccess_ItShouldBeExecutedOnce()
         {
             _mockedDecoratedRestService.Setup(x => x.Execute<IRestMockedApi>(api => api.AnotherSampleRestMethod()))
                                .Callback(() => executedRestNonVoidMethodCount++)
@@ -36,27 +32,27 @@ namespace Tests
 
             await _systemUnderTest.Execute<IRestMockedApi>(api => api.AnotherSampleRestMethod());
 
-            Assert.AreEqual(1, executedRestNonVoidMethodCount, "Method has not been executed once.");
+            Assert.That(executedRestNonVoidMethodCount, Is.EqualTo(1), "Method has not been executed once.");
         }
 
         [Test]
-        public async void VoidMethod_ExecutedAndReturnedSuccess_ItShouldBeExecutedOnce()
+        public async Task VoidMethod_ExecutedAndReturnedSuccess_ItShouldBeExecutedOnce()
         {
             _mockedDecoratedRestService.Setup(x => x.Execute<IRestMockedApi>(api => api.SampleRestMethod()))
                                        .Callback(() => executedRestVoidMethodCount++)
                                        .ReturnsAsync(new Refit.Insane.PowerPack.Data.Response());
 
             await _systemUnderTest.Execute<IRestMockedApi>(api => api.SampleRestMethod());
-			Assert.AreEqual(1, executedRestVoidMethodCount, "Method has not been executed once.");
+			Assert.That(executedRestVoidMethodCount, Is.EqualTo(1), "Method has not been executed once.");
 		}
 
         [Test]
-        public async void NonVoidMethod_ExecutedWithFailure_ItShouldBeExecutedFourTimes()
+        public async Task NonVoidMethod_ExecutedWithFailure_ItShouldBeExecutedFourTimes()
         {
             var apiException = await
-                ApiException.Create(new Uri("http://www.google.pl"),
-                                    HttpMethod.Get,
-                                    new HttpResponseMessage(System.Net.HttpStatusCode.NotFound));
+                ApiException.Create(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.google.pl")),
+                    HttpMethod.Get, new HttpResponseMessage(System.Net.HttpStatusCode.NotFound), new RefitSettings());
+
 
             _mockedDecoratedRestService.Setup(x => x.Execute<IRestMockedApi>(api => api.AnotherSampleRestMethod()))
                                .Callback(() => executedRestNonVoidMethodCount++)
@@ -70,15 +66,14 @@ namespace Tests
                 
             }
 
-            Assert.AreEqual(4, executedRestNonVoidMethodCount, "Method has not been called four times (1 normal execution + 3 retry)");
+            Assert.That(executedRestNonVoidMethodCount, Is.EqualTo(4), "Method has not been called four times (1 normal execution + 3 retry)");
         }
 
         [Test]
-        public async void VoidMethod_ExecutedWithFailure_ItShouldBeExecutedFourTimes(){
+        public async Task VoidMethod_ExecutedWithFailure_ItShouldBeExecutedFourTimes(){
 			var apiException = await
-				ApiException.Create(new Uri("http://www.google.pl"),
-									HttpMethod.Get,
-									new HttpResponseMessage(System.Net.HttpStatusCode.NotFound));
+				ApiException.Create(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.google.pl")),
+                    HttpMethod.Get, new HttpResponseMessage(System.Net.HttpStatusCode.NotFound), new RefitSettings());
 
             _mockedDecoratedRestService.Setup(x => x.Execute<IRestMockedApi>(api => api.SampleRestMethod()))
 							   .Callback(() => executedRestVoidMethodCount++)
@@ -93,7 +88,7 @@ namespace Tests
 
 			}
 
-            Assert.AreEqual(4, executedRestVoidMethodCount, "Method has not been called four times (1 normal execution + 3 retry)");
+            Assert.That(executedRestVoidMethodCount, Is.EqualTo(4), "Method has not been called four times (1 normal execution + 3 retry)");
         }
     }
 }

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Refit.Insane.PowerPack", "..\Refit.Insane.PowerPack\Refit.Insane.PowerPack.csproj", "{FAB3A5A3-29E8-44B8-8FEB-73EB076CD40F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Refit.Insane.PowerPack.Tests", "Refit.Insane.PowerPack.Tests\Refit.Insane.PowerPack.Tests.csproj", "{CBAAE38C-A1D5-47DC-B082-D227F7F7E51C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,5 +15,9 @@ Global
 		{FAB3A5A3-29E8-44B8-8FEB-73EB076CD40F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAB3A5A3-29E8-44B8-8FEB-73EB076CD40F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAB3A5A3-29E8-44B8-8FEB-73EB076CD40F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBAAE38C-A1D5-47DC-B082-D227F7F7E51C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBAAE38C-A1D5-47DC-B082-D227F7F7E51C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBAAE38C-A1D5-47DC-B082-D227F7F7E51C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBAAE38C-A1D5-47DC-B082-D227F7F7E51C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

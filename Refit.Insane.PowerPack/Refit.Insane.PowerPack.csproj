@@ -3,11 +3,7 @@
     <TargetFrameworks>net5.0;net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <!--<PackageReference Include="" Version=""/>-->
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="akavache" Version="9.0.1" />
     <PackageReference Include="Polly" Version="7.2.3" />

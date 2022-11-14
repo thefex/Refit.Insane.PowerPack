@@ -23,6 +23,8 @@ namespace Refit.Insane.PowerPack.Caching
         /// <typeparam name="TResult">Cached value type.</typeparam>
         Task<TResult> Get<TResult>(string atKey);
 
+        Task<DateTimeOffset?> GetSavedAtTime(string atKey);
+
         /// <summary>
         /// Deletes the cached value at specified key.
         /// </summary>

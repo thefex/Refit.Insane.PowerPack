@@ -84,8 +84,8 @@ namespace Refit.Insane.PowerPack.Services
         }
 
 
-        public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod)
-            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod), executeApiMethod.Body as MethodCallExpression);
+        public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, bool forceExecuteEvenIfResponseIsInCache)
+            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, forceExecuteEvenIfResponseIsInCache), executeApiMethod.Body as MethodCallExpression);
 
     }
 }
