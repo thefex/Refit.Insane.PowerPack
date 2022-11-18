@@ -6,6 +6,7 @@ using Refit.Insane.PowerPack.Data;
 using Refit.Insane.PowerPack.Retry;
 using Polly;
 using System.Linq;
+using Refit.Insane.PowerPack.Caching;
 
 namespace Refit.Insane.PowerPack.Services
 {
@@ -84,11 +85,11 @@ namespace Refit.Insane.PowerPack.Services
         }
 
 
-        public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, bool forceExecuteEvenIfResponseIsInCache)
-            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, forceExecuteEvenIfResponseIsInCache), executeApiMethod.Body as MethodCallExpression);
+        public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, RefitCacheBehaviour cacheBehaviour)
+            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, cacheBehaviour), executeApiMethod.Body as MethodCallExpression);
 
         public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod,
-            Func<TimeSpan?, bool> shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate)
-            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate), executeApiMethod.Body as MethodCallExpression);
+            Func<TimeSpan?, RefitCacheBehaviour> controlCacheBehaviourBasedOnTimeSpanBetweenLastCacheUpdate)
+            => ExecuteMethod(() => proxiedRestService.Execute(executeApiMethod, controlCacheBehaviourBasedOnTimeSpanBetweenLastCacheUpdate), executeApiMethod.Body as MethodCallExpression);
     }
 }

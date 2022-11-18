@@ -28,34 +28,41 @@ namespace Refit.Insane.PowerPack.Services
             _refitCacheController = refitCacheController;
         }
 
-        public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, bool forceExecuteEvenIfResponseIsInCache = false)
+        public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, RefitCacheBehaviour cacheBehaviour = RefitCacheBehaviour.Default)
         {
             if (!_refitCacheController.IsMethodCacheable(executeApiMethod))
-                return await _decoratedRestService.Execute(executeApiMethod, forceExecuteEvenIfResponseIsInCache).ConfigureAwait(false);
+                return await _decoratedRestService.Execute(executeApiMethod, cacheBehaviour).ConfigureAwait(false);
 
             var cacheKey = _refitCacheController.GetCacheKey(executeApiMethod);
             var refitCacheAttribute = _refitCacheController.GetRefitCacheAttribute(executeApiMethod);
             var cachedValue = await persistedCache.Get<TResult>(refitCacheAttribute.CacheAttribute.CacheLocation, cacheKey);
 
-            if (cachedValue != null && !forceExecuteEvenIfResponseIsInCache)
+            if (cachedValue != null && cacheBehaviour == RefitCacheBehaviour.Default) // if cache behavior is default - always return cache if exists
                 return new Response<TResult>(cachedValue);
 
-            var restResponse = await _decoratedRestService.Execute(executeApiMethod, forceExecuteEvenIfResponseIsInCache);
+            // otherwise call api
+            var restResponse = await _decoratedRestService.Execute(executeApiMethod, cacheBehaviour);
 
             if (restResponse.IsSuccess)
             {
+                // if response is successful - update cache
                 var refitCacheAttributes = _refitCacheController.GetRefitCacheAttribute<TApi, TResult>(executeApiMethod);
-
                 await persistedCache.Save(refitCacheAttributes.CacheAttribute.CacheLocation, cacheKey, restResponse.Results, refitCacheAttributes.CacheAttribute.CacheTtl);
+            }
+            else 
+            {
+                // if FallbackToCache mode is used, response failed and there is something in cache - return it instead of failed response
+                if (cachedValue != null && cacheBehaviour == RefitCacheBehaviour.ForceUpdateFallbackToCache)
+                    return new Response<TResult>(cachedValue);
             }
 
             return restResponse;
         }
 
         public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod,
-            Func<TimeSpan?, bool> shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate)
+            Func<TimeSpan?, RefitCacheBehaviour> controlCacheBehaviourBasedOnTimeSpanBetweenLastCacheUpdate)
         {
-            bool shouldForceExecute = false;
+            RefitCacheBehaviour refitCacheBehaviour = RefitCacheBehaviour.Default;
             if (_refitCacheController.IsMethodCacheable(executeApiMethod))
             {
                 var cacheKey = _refitCacheController.GetCacheKey(executeApiMethod);
@@ -65,11 +72,11 @@ namespace Refit.Insane.PowerPack.Services
                 TimeSpan? timeDifference = null;
                 if (lastSaveDate.HasValue) 
                     timeDifference = DateTimeOffset.UtcNow - lastSaveDate.Value;
-
-                shouldForceExecute = shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate(timeDifference);
+                
+                refitCacheBehaviour = controlCacheBehaviourBasedOnTimeSpanBetweenLastCacheUpdate(timeDifference);
             }
 
-            return await Execute(executeApiMethod, shouldForceExecute);
+            return await Execute(executeApiMethod, refitCacheBehaviour);
         }
 
         public Task<Response> Execute<TApi>(Expression<Func<TApi, Task>> executeApiMethod) => _decoratedRestService.Execute(executeApiMethod);

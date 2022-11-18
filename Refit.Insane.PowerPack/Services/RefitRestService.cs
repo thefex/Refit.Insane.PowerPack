@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Refit.Insane.PowerPack.Data;
 using System.Net;
 using Refit.Insane.PowerPack.Attributes;
+using Refit.Insane.PowerPack.Caching;
 using Refit.Insane.PowerPack.Configuration;
 
 namespace Refit.Insane.PowerPack.Services
@@ -52,7 +53,7 @@ namespace Refit.Insane.PowerPack.Services
 		    _handlerFactories = handlerFactories;
 	    }
 
-		public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, bool forceExecuteEvenIfResponseIsInCache = false)
+		public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, RefitCacheBehaviour cacheBehaviour = RefitCacheBehaviour.Default)
 		{
 			var restApi = GetRestApiImplementation<TApi>();
 
@@ -71,7 +72,7 @@ namespace Refit.Insane.PowerPack.Services
 		}
 
 		public Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod,
-			Func<TimeSpan?, bool> shouldForceExecuteEvenIfResponseIsInCacheBasedOnTimeSpanBetweenLastCacheUpdate) => Execute(executeApiMethod, false);
+			Func<TimeSpan?, RefitCacheBehaviour> controlCacheBehaviourBasedOnTimeSpanBetweenLastCacheUpdate) => Execute(executeApiMethod, RefitCacheBehaviour.Default);
 
 
 		public async Task<Response> Execute<TApi>(Expression<Func<TApi, Task>> executeApiMethod)
