@@ -20,7 +20,7 @@ namespace Refit.Insane.PowerPack.Attributes
             CancellationToken cancellationToken)
         {
             if (!Debugger.IsAttached)
-                return await SendAsync(request, cancellationToken).ConfigureAwait(false);
+                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             
             HttpResponseMessage httpResponseMessage;
             Stopwatch totalElapsedTime = Stopwatch.StartNew();
