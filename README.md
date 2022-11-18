@@ -5,6 +5,10 @@ Refit Insane PowerPack is a Refit library extensions which provides attribute ba
 Install-Package Refit.Insane.PowerPack
 
 # Changelog
+v. 6.3.2.2-rc, v. 5.2.4.2-rc
+- **FIXED BROKEN HttpClientDiagnosticsHandler - make sure you do not use it in production env if you are using 6.3.2.0/5.2.4.0 !!**
+- Extended Refit Cache Behaviour - force cache refresh is now controlled via **[RefitCacheBehaviour]** - Default (cache not refreshed), Force Update without fallback to cache ( cache refreshed + refresh response returned), Force Update with fallback to cache ( cache refreshed + in case refresh response failed - cache returned if available, in case refresh response succeed - response returned) **Please read RefitCacheBehaviour summary (intellisense)**
+
 v. 6.3.2.1-rc, v. 5.2.4.1-rc
 
 Release candidate.
