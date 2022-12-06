@@ -36,7 +36,7 @@ namespace Refit.Insane.PowerPack.Services
             return BuildRestService(refitRestService, restApiAssembly);
         }
 
-        public IRestService BuildRestService(IDictionary<Type, DelegatingHandler> handlerImplementations, Assembly restApiAssembly)
+        public IRestService BuildRestService(IReadOnlyDictionary<Type, DelegatingHandler> handlerImplementations, Assembly restApiAssembly)
         {
             var refitRestService = refitSettings != null
                 ? new RefitRestService(handlerImplementations, refitSettings)
@@ -44,7 +44,7 @@ namespace Refit.Insane.PowerPack.Services
             return BuildRestService(refitRestService, restApiAssembly);
         }
         
-        public IRestService BuildRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories, Assembly restApiAssembly) 
+        public IRestService BuildRestService(IReadOnlyDictionary<Type, Func<DelegatingHandler>> handlerFactories, Assembly restApiAssembly) 
         {
             var refitRestService = refitSettings != null
                 ? new RefitRestService(handlerFactories, refitSettings)

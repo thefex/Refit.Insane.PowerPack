@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Refit.Insane.PowerPack.Data;
 using System.Net;
+using System.Runtime.CompilerServices;
 using Refit.Insane.PowerPack.Attributes;
 using Refit.Insane.PowerPack.Caching;
 using Refit.Insane.PowerPack.Configuration;
@@ -13,9 +15,9 @@ namespace Refit.Insane.PowerPack.Services
 {
 	public class RefitRestService : IRestService
     {
-	    private readonly IDictionary<Type, Func<DelegatingHandler>> _handlerFactories;
-	    private readonly IDictionary<Type, DelegatingHandler> _handlerImplementations;
-	    private readonly IDictionary<Type, object> _implementations = new Dictionary<Type, object>();
+	    private readonly ConcurrentDictionary<Type, Func<DelegatingHandler>> _handlerFactories;
+	    private readonly ConcurrentDictionary<Type, DelegatingHandler> _handlerImplementations;
+	    private readonly ConcurrentDictionary<Type, object> _implementations = new ConcurrentDictionary<Type, object>();
 	    private readonly RefitSettings _refitSettings;
 
 	    public RefitRestService(RefitSettings refitSettings) : this()
@@ -25,32 +27,32 @@ namespace Refit.Insane.PowerPack.Services
 	    
 	    public RefitRestService()
 	    {
-		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
-		    _handlerFactories = new Dictionary<Type, Func<DelegatingHandler>>();
+		    _handlerImplementations = new ConcurrentDictionary<Type, DelegatingHandler>();
+		    _handlerFactories = new ConcurrentDictionary<Type, Func<DelegatingHandler>>();
 	    }
 
-	    public RefitRestService(IDictionary<Type, DelegatingHandler> handlerImplementations, RefitSettings refitSettings) : this(handlerImplementations)
+	    public RefitRestService(IReadOnlyDictionary<Type, DelegatingHandler> handlerImplementations, RefitSettings refitSettings) : this(handlerImplementations)
 	    {
 		    _refitSettings = refitSettings;
 	    }
 		
-	    public RefitRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories, RefitSettings refitSettings) : this(handlerFactories)
+	    public RefitRestService(IReadOnlyDictionary<Type, Func<DelegatingHandler>> handlerFactories, RefitSettings refitSettings) : this(handlerFactories)
 	    {
-		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
-		    _handlerFactories = handlerFactories;
+		    _handlerImplementations = new ConcurrentDictionary<Type, DelegatingHandler>();
+		    _handlerFactories = new ConcurrentDictionary<Type, Func<DelegatingHandler>>(handlerFactories);
 		    _refitSettings = refitSettings;
 	    }
 
-	    public RefitRestService(IDictionary<Type, DelegatingHandler> handlerImplementations)
+	    public RefitRestService(IReadOnlyDictionary<Type, DelegatingHandler> handlerImplementations)
 	    {
-		    _handlerImplementations = handlerImplementations;
-		    _handlerFactories = new Dictionary<Type, Func<DelegatingHandler>>();
+		    _handlerImplementations = new ConcurrentDictionary<Type, DelegatingHandler>(handlerImplementations);
+		    _handlerFactories = new ConcurrentDictionary<Type, Func<DelegatingHandler>>();
 	    }
 		
-	    public RefitRestService(IDictionary<Type, Func<DelegatingHandler>> handlerFactories)
+	    public RefitRestService(IReadOnlyDictionary<Type, Func<DelegatingHandler>> handlerFactories)
 	    {
-		    _handlerImplementations = new Dictionary<Type, DelegatingHandler>();
-		    _handlerFactories = handlerFactories;
+		    _handlerImplementations = new ConcurrentDictionary<Type, DelegatingHandler>();
+		    _handlerFactories = new ConcurrentDictionary<Type, Func<DelegatingHandler>>(handlerFactories);
 	    }
 
 		public async Task<Response<TResult>> Execute<TApi, TResult>(Expression<Func<TApi, Task<TResult>>> executeApiMethod, RefitCacheBehaviour cacheBehaviour = RefitCacheBehaviour.Default)
@@ -92,8 +94,8 @@ namespace Refit.Insane.PowerPack.Services
 				throw;
 			}
 		}
-	    
-	    private TApi GetRestApiImplementation<TApi>()
+		
+	    internal TApi GetRestApiImplementation<TApi>()
 	    {
 		    if (_implementations.ContainsKey(typeof(TApi))) 
 			    return (TApi)_implementations[typeof(TApi)];
@@ -114,41 +116,36 @@ namespace Refit.Insane.PowerPack.Services
 			                                        $"{nameof(BaseApiConfiguration)} class.");
 			    
 			
-		    var restApi = default(TApi);
-		    try
-		    {
-			    restApi = _refitSettings != null
-				    ? RestService.For<TApi>(httpClient, _refitSettings)
-				    : RestService.For<TApi>(httpClient);
-			    
-			    _implementations.Add(typeof(TApi), restApi);
-		    }
-		    catch (Exception ex)
-		    {
-			    System.Diagnostics.Debug.WriteLine(ex);
-		    }
+		    var restApi = default(TApi); 
+		    restApi = _refitSettings != null
+			    ? RestService.For<TApi>(httpClient, _refitSettings)
+			    : RestService.For<TApi>(httpClient);
 
+		    if (restApi == null)
+			    throw new InvalidOperationException("Could not create RestService for: " + typeof(TApi) +
+			                                        ", please validate your Refit interfaces declaration.");
+
+		    _implementations.TryAdd(typeof(TApi), restApi);
 		    return restApi;
 	    }
 
-	    private DelegatingHandler GetHandler(Type httpClientHandlerType)
+	    internal DelegatingHandler GetHandler(Type httpClientHandlerType)
 	    {
 		    var httpClientMessageHandler = default(DelegatingHandler);
 
 		    if (_handlerFactories.ContainsKey(httpClientHandlerType) && !_handlerImplementations.ContainsKey(httpClientHandlerType))
 		    {
-			    var factory = _handlerFactories[httpClientHandlerType];
-			    _handlerImplementations.Add(httpClientHandlerType, factory());
+			    if (_handlerFactories.TryGetValue(httpClientHandlerType, out var factory))
+					_handlerImplementations.TryAdd(httpClientHandlerType, factory());
 		    }
-
-		    if (_handlerImplementations.ContainsKey(httpClientHandlerType))
-			    httpClientMessageHandler = _handlerImplementations[httpClientHandlerType];
-		    else
+		    
+		    if (!_handlerImplementations.ContainsKey(httpClientHandlerType))
 		    {
 			    httpClientMessageHandler = Activator.CreateInstance(httpClientHandlerType) as DelegatingHandler;
-			    _handlerImplementations.Add(httpClientHandlerType, httpClientMessageHandler);
+			    _handlerImplementations.TryAdd(httpClientHandlerType, httpClientMessageHandler);
 		    }
 
+		    httpClientMessageHandler = _handlerImplementations[httpClientHandlerType];
 		    return httpClientMessageHandler;
 	    }
 
@@ -162,8 +159,6 @@ namespace Refit.Insane.PowerPack.Services
         protected virtual Task<Response<TResult>> GetResponse<TResult>(ApiException fromApiException){
 			throw new InvalidOperationException($"If you are returning true in CanPrepareResponse method " +
 												"you have to override GetResponse methods.");
-        }
-
-		 
+        } 
     }
 }
