@@ -58,10 +58,15 @@ v. 1.0.3
 2. Read changelog above!
 3. Read presentation I have created for Cracow #Xamarines - Xamarines.com
 https://github.com/thefex/Refit.Insane.PowerPack/blob/master/refit_presentation.pdf
-
 4. In order to use ApiDefinitionAttribute you need to either:
 * Attach attributes to each refit API interface
 * Attach attribute to only specific API interfaces but also set BaseApiConfiguration.ApiUri which will be used as base uri for all interfaces without ApiDefinition attribute
+
+# Important steps
+As library is using Akavache by default for caching you would need to explictly call:
+- Akavache.BlobCache.LocalMachine/InMemory/Secure/UserAccount (dependent on CacheLocation you're using, by default it is LocalMachine).Flush() - dependent on platform, on Android OnActivityDestroyed() and when app goes background works well -> read: https://github.com/reactiveui/Akavache
+- If you want to prevent app from growing size (and especially to clear expired keys) and optimize internal databasize sie (sqlite vacuum) - you need to call: Akavache.BlobCache.LocalMachine/InMemory/Secure/UserAccount.Vacuum() -> for mobile, app startup seems to work fine - in case cache is very big - you could implement background worker
+
 
 # Acknowledgment
 Thanks to Artur Malendowicz (https://github.com/Immons) for implementing multiple API support (ApiDefinition)
